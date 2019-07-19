@@ -1,0 +1,26 @@
+{
+  "name": "smart-kicker",
+  "version": "0.0.1",
+  "description": "OLT Application for Smart Kicker tables",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "knex": "^0.19.0",
+    "koa": "^2.7.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0",
+    "lodash": "^4.17.15",
+    "node-fetch": "^2.6.0",
+    "sqlite3": "^4.0.9",
+    "uuid": "^3.3.2",
+    "ws": "^7.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Osram Innovation Hub GmbH",
+  "license": "ISC"
+}

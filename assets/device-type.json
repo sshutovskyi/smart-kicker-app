@@ -1,0 +1,61 @@
+{
+  "attributes": {},
+  "configuration": {
+    "players": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "key"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "actions": {},
+  "events": {
+    "matchCompleted": {
+      "type": "object",
+      "required": ["participants"],
+      "additionalProperties": false,
+      "properties": {
+        "finishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["score", "players"],
+            "additionalProperties": false,
+            "properties": {
+              "score": {
+                "type": "number",
+                "format": "integer",
+                "min": 0,
+                "max": 10
+              },
+              "players": {
+                "type": "array",
+                "minLength": 1,
+                "maxLength": 2,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
