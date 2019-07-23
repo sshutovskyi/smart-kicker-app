@@ -1,3 +1,4 @@
+const { EventEmitter } = require('events');
 const { zipWith, map, keyBy, groupBy } = require('lodash');
 const uuid = require('uuid/v4');
 
@@ -14,6 +15,9 @@ const mapPlayerShort = row => ({
   id: row.id,
   name: row.name,
 });
+const mapTeam = (row, players) => ({
+  players,
+});
 
 const PLAYERS_TABLE_NAME = 'players';
 const TENANTS_TABLE_NAME = 'tenants';
@@ -21,9 +25,10 @@ const MATCHES_TABLE_NAME = 'matches';
 const PARTICIPANTS_TABLE_NAME = 'participants';
 const TEAMS_TABLE_NAME = 'teams';
 
-class Service {
+class Service extends EventEmitter {
   constructor(knex) {
-    this.knex = knex();
+    super();
+    this.knex = knex;
   }
 
   listTenants() {
@@ -82,8 +87,34 @@ class Service {
   }
 
   async getOrCreateTeam(tenantId, playerUUIDs) {
-    // TODO find or create a team for given players,
-    // decide whether playerUUIDs are here or numeric ids
+    const players = await knex(PLAYERS_TABLE_NAME)
+      .select()
+      .where('tenant_id', tenantId)
+      .whereIn('uuid', playerUUIDs)
+      .map(mapPlayer);
+    if (players.length !== playerUUIDs.length) {
+      throw new Error('encountered unknown players');
+    }
+    const team = await knex(TEAMS_TABLE_NAME)
+      .select()
+      .whereRaw(
+        '(player1_id=? AND player2_id=?) OR (player1_id=? AND player2_id=?)',
+        players[0].id,
+        players[1] ? players[1].id || null,
+        players[1] ? players[1].id || null,
+        players[0].id,
+      );
+    if (team) return mapTeam(team, players);
+
+    const newTeam = await knex(TEAMS_TABLE_NAME)
+      .insert({
+        tenant_id: tenantId,
+        player1_id: players[0].id,
+        player2_id: players[1] ? players[1].id || null,
+      })
+      .returning('*');
+
+    return mapTeam(newTeam, players);
   }
 
   async createMatch(tenantId, data) {

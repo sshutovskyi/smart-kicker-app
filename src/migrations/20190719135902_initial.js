@@ -19,6 +19,8 @@ exports.up = (knex) => knex.schema
   })
   .createTable('matches', (t) => {
     t.increments('id');
+    t.uuid('device_id');
+    t.integer('started_at');
     t.integer('finished_at');
   })
   .createTable('participants', (t) => {
