@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link href="/index.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="olt-Frame">
+    <nav role="navigation" class="olt-Navbar olt-Navbar--dark">
+      <a href="/" class="olt-Navbar-title"></a>
+      <div class="olt-Navbar-content">
+        <a href="/" class="olt-Navbar-title"></a>
+        <ul class="olt-Navbar-menu olt-Menu">
+          <li class="olt-Menu-item active">
+            <a class="olt-Menu-link is-active" href="/matches/{{tenantId}}">Matches</a>
+          </li>
+          <li class="olt-Menu-item">
+            <a class="olt-Menu-link" href="/standing/{{tenantId}}">Standing</a>
+          </li>
+        </ul>
+        </div>
+    </nav>
+    <table class="olt-Table">
+      <thead class="olt-Table-body">
+        <tr class="olt-Table-row">
+          <th class="olt-Table-header">Date</th>
+          <th class="olt-Table-header">Duration</th>
+          <th class="olt-Table-header">Team 1</th>
+          <th class="olt-Table-header">Score</th>
+          <th class="olt-Table-header">Team 2</th>
+        </tr>
+      </thead>
+      <tbody class="olt-Table-body">
+    {{#each matches}}
+      <tr class="olt-Table-row">
+        <td class="olt-Table-data">{{formatDate finishedAt}}</td>
+        <td class="olt-Table-data">{{duration finishedAt startedAt}}</td>
+        <td class="olt-Table-data">
+          {{participants.[0].players.[0].name}}
+          {{#if participants.[0].players.[1]}}
+            &amp;
+            {{participants.[0].players.[1].name}}
+          {{/if}}
+        </td>
+        <td class="olt-Table-data">{{participants.[0].score}}:{{participants.[1].score}}</td>
+        <td class="olt-Table-data">
+          {{participants.[1].players.[0].name}}
+          {{#if participants.[1].players.[1]}}
+            &amp;
+            {{participants.[1].players.[1].name}}
+          {{/if}}
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+    </table>
+  </div>
+</body>
+</html>

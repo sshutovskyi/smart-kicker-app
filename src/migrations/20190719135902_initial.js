@@ -9,7 +9,6 @@ exports.up = (knex) => knex.schema
     t.uuid('uuid').notNullable().unique();
     t.string('key').notNullable();
     t.string('name').notNullable();
-    t.index()
   })
   .createTable('teams', (t) => {
     t.increments('id');
@@ -22,6 +21,7 @@ exports.up = (knex) => knex.schema
     t.uuid('device_id');
     t.integer('started_at');
     t.integer('finished_at');
+    t.integer('tenant_id').notNullable();
   })
   .createTable('participants', (t) => {
     t.integer('match_id').notNullable();

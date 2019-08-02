@@ -1,75 +1,36 @@
 const { EventEmitter } = require('events');
 const querystring = require('querystring');
-const fetch = require('node-fetch');
 const WebSocket = require('ws');
 
 const TENANT_RECONNECTION_TIMEOUT = 1000;
-const DEVICE_TYPE_CATEGORY = 'io.lightelligence.smart-kicker.table';
+const DEVICE_TYPE_CATEGORY = 'io:lightelligence:smart-kicker:table';
 const EVENT_NAME = 'matchCompleted';
 
 class Poller extends EventEmitter {
-  constructor(config, service) {
+  constructor(oltClient, service) {
     super();
-    this.config = config;
+    this.oltClient = oltClient;
     this.service = service;
-  }
-
-  async getToken(tenant) {
-    const res = await fetch('https://id.lightelligence.io/v1/id/auth/realms/olt/protocol/openid-connect/token', {
-      method: 'post',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        'tenant': tenant.uuid,
-      },
-      body: querystring.stringify({
-        grant_type: 'client_credentials',
-        client_id: this.config.clientId,
-        client_secret: this.config.clientSecret,
-      }),
-    });
-    const body = await res.json();
-    return body.access_token;
-  }
-
-  async getStreamUrl(tenant) {
-    const token = await this.getToken(tenant);
-
-    const res = await fetch('https://api.lightelligence.io/v1/devices/streaming-connections', {
-      method: 'post',
-      body: JSON.stringify({
-        type: 'live',
-        filter: {
-          type: 'eventUpdate',
-          deviceTypeCategory: DEVICE_TYPE_CATEGORY,
-          event: [EVENT_NAME],
-        },
-      }),
-      headers: {
-        'content-type': 'application/json',
-        'authorization': `Bearer ${token}`,
-      },
-    });
-    const body = await res.json();
-
-    const { data: { url } } = body;
-
-    return url;
   }
 
   async registerTenant(tenant) {
     try {
-      const url = await this.getStreamUrl(token);
+      const url = await this.oltClient.getStreamUrl(tenant, {
+        type: ['eventUpdate'],
+        deviceTypeCategory: [DEVICE_TYPE_CATEGORY],
+        event: [EVENT_NAME],
+      });
+      const token = await this.oltClient.getToken(tenant);
       const socket = new WebSocket(url, {
         headers: {
           'authorization': `Bearer ${token}`,
         },
       });
-      socket.on('message', await (msg) => {
+      socket.on('message', async (msg) => {
         try {
-          console.log(msg);
-          const { payload } = JSON.parse(msg);
-          this.service.createMatch(tenant.id, payload);
-
+          const { payload: { value } } = JSON.parse(msg);
+          this.emit('match', tenant.id, value);
+          await this.service.createMatch(tenant.id, value);
         } catch (err) {
           this.emit('error', new Error(`Failed to process message ${msg} for tenant ${tenant.id}.
             Reason: ${err.message}`));

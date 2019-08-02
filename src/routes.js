@@ -1,50 +1,40 @@
 const Router = require('koa-router');
+const views = require('koa-views');
+const formatDate = require('dateformat');
 
 module.exports = (service) => {
   const app = new Router();
 
-  app.get('/players', async ctx => {
-    const players = await service.listPlayers('tenantId');
-
-    ctx.body = {
-      data: players,
-    };
-  });
-
-  app.post('/players', async ctx => {
-    const body = ctx.body;
-    const player = await service.createPlayer('tenantId', body);
-
-    ctx.status = 201;
-    ctx.body = {
-      data: player,
-    };
-  });
-
-  app.post('/matches', async ctx => {
-    const body = ctx.body;
-    const match = await service.createMatch('tenantId', body);
-
-    ctx.status = 201;
-    ctx.body = {
-      data: match,
+  app.use(views(__dirname + '/views', {
+    extension: 'hbs',
+    map: { hbs: 'handlebars' },
+    options: {
+      helpers: {
+        formatDate(ts) {
+          return formatDate(new Date(ts), 'yyyy-mm-dd HH:MM:ss')
+        },
+        duration(finishedAt, startedAt) {
+          const diff = (finishedAt - startedAt) / 1000;
+          const minutes = Math.floor(diff / 60);
+          const seconds = diff % 60;
+          return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        },
+      },
     },
+  }));
+
+  app.get('/matches/:tenantId', async ctx => {
+    const { tenantId } = ctx.params;
+    const matches = await service.listMatches(tenantId);
+
+    return ctx.render('matches', { matches, tenantId });
   });
 
-  app.get('/matches', async ctx => {
-    const matches = await service.listMatches('tenantId');
+  app.get('/standing/:tenantId', async ctx => {
+    const { tenantId } = ctx.params;
+    const standing = await service.getStanding(tenantId);
 
-    ctx.body = {
-      data: matches,
-    };
-  });
-
-  app.get('/standing', async ctx => {
-    const standing = await service.getStanding('tenantId');
-
-    ctx.body = {
-      data: standing,
-    };
+    return ctx.render('standing', { standing, tenantId });
   });
 
   return app.routes();

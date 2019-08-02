@@ -1,9 +1,12 @@
 module.exports = {
   client: 'sqlite3',
   connection: {
-    filename: process.env.DB_PATH || './smart_kicker.sqlite',
+    filename: './smart_kicker.sqlite',
   },
-  migration: {
+  migrations: {
     directory: './src/migrations',
+  },
+  seeds: {
+    directory: './src/seeds',
   },
 };
