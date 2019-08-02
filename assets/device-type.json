@@ -1,0 +1,123 @@
+{
+  "events": {
+    "matchCompleted": {
+      "type": "object",
+      "required": [
+        "participants"
+      ],
+      "properties": {
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "score",
+              "players"
+            ],
+            "properties": {
+              "score": {
+                "max": 10,
+                "min": 0,
+                "type": "number",
+                "format": "integer"
+              },
+              "players": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxLength": 2,
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "matchInProgress": {
+      "type": "object",
+      "required": [
+        "participants"
+      ],
+      "properties": {
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "score",
+              "players"
+            ],
+            "properties": {
+              "score": {
+                "max": 10,
+                "min": 0,
+                "type": "number",
+                "format": "integer"
+              },
+              "players": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "maxLength": 2,
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "actions": {
+    "additionalProperties": false
+  },
+  "attributes": {
+    "additionalProperties": false
+  },
+  "configuration": {
+    "players": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "key"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}
